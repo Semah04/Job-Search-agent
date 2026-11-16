@@ -4,24 +4,20 @@ import {
   streamText,
   type UIMessage,
 } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { createAgentTools } from "@/lib/agent/tools";
+import { getAgentModel } from "@/lib/agent/model";
+import { lastUserText, runFallbackAgent } from "@/lib/agent/fallback";
 import { prisma } from "@/lib/db";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
-    return Response.json(
-      {
-        error:
-          "Missing OPENAI_API_KEY. Add it to .env.local and restart the server.",
-      },
-      { status: 500 },
-    );
-  }
-
   const { messages }: { messages: UIMessage[] } = await req.json();
+  const model = getAgentModel();
+
+  if (!model) {
+    return runFallbackAgent(lastUserText(messages));
+  }
 
   const profile = await prisma.profile.findUnique({ where: { id: "default" } });
 
@@ -37,7 +33,7 @@ export async function POST(req: Request) {
     : "User has not saved a profile yet. Suggest they open /profile.";
 
   const result = streamText({
-    model: openai("gpt-4o-mini"),
+    model,
     system: `You are a careful job search agent.
 You help the user find remote/tech jobs, rank them against their profile, save interesting roles, draft cover letters, and update application status.
 

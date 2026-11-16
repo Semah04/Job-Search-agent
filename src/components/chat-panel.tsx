@@ -4,12 +4,16 @@ import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 
 const suggestions = [
-  "Load my profile and search remote TypeScript backend jobs",
-  "Find the top 5 matches for my skills and save them",
+  "Search remote TypeScript backend jobs and save the top 5",
+  "Find react node jobs matching my skills",
   "Draft a cover letter for the best saved job",
 ];
 
-export function ChatPanel() {
+export function ChatPanel({
+  provider,
+}: {
+  provider: "google" | "openai" | null;
+}) {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status, error } = useChat();
 
@@ -26,6 +30,43 @@ export function ChatPanel() {
           roles, and draft cover letters. Fill Profile first for better matches.
         </p>
       </div>
+
+      {provider === "google" && (
+        <div className="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+          Using free <strong>Google Gemini</strong> for the agent.
+        </div>
+      )}
+
+      {provider === "openai" && (
+        <div className="mb-4 rounded-xl border border-sky-300 bg-sky-50 px-4 py-3 text-sm text-sky-950">
+          Using <strong>OpenAI</strong> for the agent.
+        </div>
+      )}
+
+      {!provider && (
+        <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p className="font-medium">Offline agent mode</p>
+          <p className="mt-1 text-amber-900/90">
+            Add a free Gemini key to{" "}
+            <code className="rounded bg-amber-100 px-1">.env.local</code>:
+            <code className="ml-1 rounded bg-amber-100 px-1">
+              GOOGLE_GENERATIVE_AI_API_KEY
+            </code>
+            . Get one at{" "}
+            <a
+              className="underline"
+              href="https://aistudio.google.com/apikey"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Google AI Studio
+            </a>
+            , then restart{" "}
+            <code className="rounded bg-amber-100 px-1">npm run dev</code>.
+            Chat still searches Remotive without a key.
+          </p>
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap gap-2">
         {suggestions.map((s) => (
@@ -44,8 +85,7 @@ export function ChatPanel() {
       <div className="flex-1 space-y-4 overflow-y-auto rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
         {messages.length === 0 && (
           <p className="text-sm text-[var(--muted)]">
-            Example: “Search remote fullstack Node jobs in Europe and save the
-            top 3.”
+            Example: “Search remote fullstack Node jobs and save the top 3.”
           </p>
         )}
 

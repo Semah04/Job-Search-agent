@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listJobs } from "@/lib/actions/jobs";
 import { StatusSelect } from "@/components/status-select";
+import { JobSearchForm } from "@/components/job-search-form";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +15,11 @@ export default async function JobsPage() {
           Jobs
         </h1>
         <p className="mt-1 text-[var(--muted)]">
-          Saved and scored listings from the agent.
+          Saved and scored listings from the agent or quick search.
         </p>
       </div>
+
+      <JobSearchForm />
 
       {jobs.length === 0 ? (
         <p className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 text-sm text-[var(--muted)]">
